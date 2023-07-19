@@ -1,0 +1,72 @@
+<% layout('/layouts/boilerplate') %>
+
+<div class="container-fluid">
+
+  <div class="row pt-4">
+    <div class="col-8 offset-2">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h1 class="card-title h5">Employee Information</h1>
+        </div>
+        <table class="table table-bordered">
+          <tbody>
+            <tr>
+              <td>First Name:</td>
+              <td><%= employee.employeeName.employeeFName %></td>
+            </tr>
+            <tr>
+              <td>Last Name:</td>
+              <td><%= employee.employeeName.employeeLName %></td>
+            </tr>
+            <tr>
+              <td>Middle Name:</td>
+              <td><%= employee.employeeName.employeeMidName %></td>
+            </tr>
+            <tr>
+              <td>Civil Status:</td>
+              <td><%= employee.civilStatus %></td>
+            </tr>
+            <tr>
+              <td>Birthdate:</td>
+              <td><%= employee.birthDate ? employee.birthDate.toLocaleDateString('en-US') : '' %></td>
+            </tr>
+            <tr>
+              <td>Street:</td>
+              <td><%= employee.employeeAddress.street %></td>
+            </tr>
+            <tr>
+              <td>City:</td>
+              <td><%= employee.employeeAddress.city %></td>
+            </tr>
+            <tr>
+              <td>Region:</td>
+              <td><%= employee.employeeAddress.region %></td>
+            </tr>
+            <tr>
+              <td>Postal Code:</td>
+              <td><%= employee.employeeAddress.postalCode %></td>
+            </tr>
+            <tr>
+              <td>Contact Number:</td>
+              <td><%= employee.contactNum %></td>
+            </tr>
+            <tr>
+              <td>Position:</td>
+              <td><%= employee.position %></td>
+            </tr>
+            <tr>
+              <td>Start Date:</td>
+              <td><%= employee.startDate ? employee.startDate.toLocaleDateString('en-US') : '' %></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="card-body text-center">
+          <a class="card-link btn btn-primary px-3" href="/records/<%= employee.id %>/update-record">Edit</a>
+          <form class="form-inline" action="/records/<%= employee._id %>?_method=DELETE" method="POST">
+            <button class="btn btn-danger mt-2">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

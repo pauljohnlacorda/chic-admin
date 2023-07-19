@@ -1,0 +1,184 @@
+<% layout('/layouts/boilerplate') %>
+
+  <h1>Create New Service</h1>
+  <form id="serviceForm" action="/payrolls" method="POST" novalidate class="validated-form">
+    <div>
+      <div>
+        <button id="addButton" class="btn btn-primary">Add Item</button>
+        <div class="form-group">
+          <label for="customerName">Client Name:</label>
+          <input type="text" id="customerName" name="customerName" required />
+        </div>
+        <div id="container"></div>
+      </div>
+    </div>
+    <div class="mt-4 text-right">
+      <div class="subtotal form-group">
+        <label for="subTotal">Sub Total:</label>
+        <input type="number" id="subTotal" name="subTotal" class="form-control" readonly />
+      </div>
+      <div class="grand-total form-group">
+        <label for="grandTotal">Grand Total:</label>
+        <input type="text" id="grandTotal" name="grandTotal" class="form-control" readonly />
+      </div>
+    </div>
+    <div class="mt-4 text-right">
+      <button id="submitButton" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
+
+
+  <script>
+    // Get references to the button, container, and grand total input
+    const addButton = document.getElementById("addButton");
+    const container = document.getElementById("container");
+    const grandTotalInput = document.getElementById("grandTotal");
+    const customerNameInput = document.getElementById("customerName");
+    const subTotalInput = document.getElementById("subTotal");
+    const submitButton = document.getElementById("submitButton");
+    const serviceForm = document.getElementById("serviceForm");
+
+    // Array to store the service items
+    const serviceItems = [];
+
+    // Add event listener to the button
+    addButton.addEventListener("click", addItem);
+
+    // Function to add an item to the container
+    function addItem() {
+      const newItem = document.createElement("div");
+
+      newItem.innerHTML = `
+      <div class="form-group-row">
+  <div class="form-group">
+    <label for="service">Service:</label>
+    <select id="service" name="services[][service]" required>
+      <option></option>
+      <% services.forEach(function(service) { %>
+      <option value="<%= service._id %>" data-price="<%= service.price %>">
+        <%= service.serviceName %>
+      </option>
+      <% }); %>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="staff">Staff:</label>
+    <select id="staff" name="services[][staff]" required>
+      <option></option>
+      <% employees.forEach(function(employee) { %>
+      <option value="<%= employee._id %>">
+        <%= employee.employeeName.employeeFName %>
+      </option>
+      <% }); %>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="services[][price]" readonly />
+  </div>
+  <div class="form-group">
+    <label for="qty">Qty:</label>
+    <input type="number" id="qty" name="services[][qty]" required />
+  </div>
+  <div class="form-group">
+    <label for="disc">Discount:</label>
+    <input type="number" id="disc" name="services[][disc]" required />
+  </div>
+  <div class="form-group">
+    <label for="total">Total:</label>
+    <input type="number" id="total" name="services[][total]" readonly />
+  </div>
+  <div class="form-group">
+    <button><i class="fa-solid fa-trash-can"></i></button>
+  </div>
+</div>
+
+    `;
+
+      // Append the new item to the container
+      container.appendChild(newItem);
+
+      // Get all the form inputs for the current item
+      const serviceSelect = newItem.querySelector("#service");
+      const staffSelect = newItem.querySelector("#staff");
+      const priceInput = newItem.querySelector("#price");
+      const qtyInput = newItem.querySelector("#qty");
+      const discInput = newItem.querySelector("#disc");
+      const totalInput = newItem.querySelector("#total");
+
+      staffSelect.addEventListener("change", calculateTotal);
+
+      // Add event listener for the service selection
+      serviceSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const price = selectedOption.getAttribute("data-price");
+        priceInput.value = price;
+        calculateTotal();
+      });
+
+      // Add event listeners for qty and disc inputs
+      qtyInput.addEventListener("input", calculateTotal);
+      discInput.addEventListener("input", calculateTotal);
+
+      function calculateTotal() {
+        const price = parseFloat(priceInput.value) || 0;
+        const qty = parseFloat(qtyInput.value) || 0;
+        const disc = parseFloat(discInput.value) || 0;
+        const total = price * qty * (1 - disc / 100);
+        totalInput.value = total.toFixed(2);
+
+        // Calculate the subtotal
+        const subTotal = Array.from(container.children).reduce((acc, item) => {
+          const itemTotal = parseFloat(item.querySelector("#total").value) || 0;
+          return acc + itemTotal;
+        }, 0);
+        document.getElementById("subTotal").value = subTotal.toFixed(2);
+
+        // Calculate the grand total
+        const grandTotal = subTotal;
+        grandTotalInput.value = grandTotal.toFixed(2);
+      }
+    }
+
+    // Add event listener for form submission
+    serviceForm.addEventListener("submit", handleFormSubmission);
+
+    // Function to handle form submission
+    function handleFormSubmission(event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      // Get the form data
+      const formData = new FormData(serviceForm);
+
+      // Convert form data to JSON
+      const jsonData = {};
+      for (const [name, value] of formData) {
+        if (!jsonData[name]) {
+          jsonData[name] = value;
+        } else {
+          if (!Array.isArray(jsonData[name])) {
+            jsonData[name] = [jsonData[name]];
+          }
+          jsonData[name].push(value);
+        }
+      }
+
+      // Send the data to the server
+      fetch("/saveCreateService", {
+        method: "POST",
+        body: JSON.stringify(jsonData),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the server response if needed
+          console.log(data);
+        })
+        .catch(error => {
+          // Handle any errors that occurred during the request
+          console.error(error);
+        });
+    }
+  </script>

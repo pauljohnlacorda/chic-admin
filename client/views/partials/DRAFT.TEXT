@@ -1,0 +1,439 @@
+   
+<nav class="navbar navbar-expand-lg navbar-light bg-dark">
+    <div class="container">
+      <a class="navbar-brand text-white" href="/records"> Chic Station </a>
+  
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <!-- Navbar links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto"> 
+          <li class="nav-item">
+            <a class="nav-link text-white" aria-current="page" href="/records">Records</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/records/new-record-form">Add Records</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/payrolls/">Services</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/payrolls/new-servicePage-form">Service Page</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  
+
+  //list of employees
+  <h3>List of Employees</h3>
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col px-5">Employee Name</th>
+        <th scope="col px-5">View Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% let counter = 1; %>
+      <% for (let record of records) { %>
+        <tr>
+          <td><%= counter %></td>
+          <td class="col-md-4 mb-2">
+            <% if (record.employeeName && record.employeeName.employeeLName && record.employeeName.employeeFName && record.employeeName.employeeMidName) { %>
+                <%= record.employeeName.employeeLName %>, <%= record.employeeName.employeeFName %> <%= record.employeeName.employeeMidName.charAt(0) %>.
+             <% } %>
+             
+          </td>
+                    <td class="col-md-2 mb-2"><a href="/records/<%= record._id %>"><i class="bi bi-eye"></i></a></td>
+        </tr>
+        <% counter++; %>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+
+-----servicePage----
+
+<form action="/payrolls/" method="POST" novalidate class="validated-form">
+  <div>
+    <label for="customerName">Client Name:</label>
+    <input
+      type="text"
+      id="customerName"
+      name="servicePage[customerName]"
+      required
+    />
+  </div>
+  <div>
+    <label for="service">Service:</label>
+    <select id="service" name="service" required>
+      <option></option>
+      <% services.forEach(function(service) { %>
+      <option value="<%= service._id %>" data-price="<%= service.price %>">
+        <%= service.serviceName %>
+      </option>
+      <% }); %>
+    </select>
+  </div>
+  <div>
+    <label for="staff">Staff:</label>
+    <select id="staff" name="servicePage[staff]" required>
+      <option></option>
+      <% employees.forEach(function(employee) { %>
+      <option value="<%= employee._id %>">
+        <%= employee.employeeName.employeeFName %>
+      </option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div>
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" readonly />
+    <br />
+    <label for="qty">Qty:</label>
+    <input type="number" id="qty" name="servicePage[qty]" required />
+    <br />
+    <label for="disc">Discount:</label>
+    <input type="number" id="disc" name="servicePage[disc]" required />
+    <br />
+    <label for="total">Total:</label>
+    <input type="number" id="total" name="total" readonly />
+  </div>
+
+  <div>
+    <label for="SubTotal">Sub Total:</label>
+    <input type="number" id="SubTotal" name="SubTotal" />
+    <br />
+    <div>
+      <label for="grandTotal">Grand Total:</label>
+      <input type="text" id="grandTotal" readonly />
+    </div>
+
+    <br />
+  </div>
+
+  <button>Submit</button>
+  <button>Generate Bill</button>
+</form>
+
+<script>
+ // Get references to the button, container, and grand total input
+const addButton = document.getElementById("addButton");
+const container = document.getElementById("container");
+const grandTotalInput = document.getElementById("grandTotal");
+
+// Create an array to store the totals of each service
+const formData = [];
+
+// Add event listener to the button
+addButton.addEventListener("click", addItem);
+
+// Function to add an item to the container
+function addItem() {
+  // Create a new item element
+  const newItem = document.createElement("div");
+
+  // Set the HTML content of the new item
+  newItem.innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label for="service">Service:</label>
+        <select id="service" name="services[][service]" required>
+          <option></option>
+          <% services.forEach(function(service) { %>
+          <option value="<%= service._id %>" data-price="<%= service.price %>">
+            <%= service.serviceName %>
+          </option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="staff">Staff:</label>
+        <select id="staff" name="services[][staff]" required>
+          <option></option>
+          <% employees.forEach(function(employee) { %>
+          <option value="<%= employee._id %>">
+            <%= employee.employeeName.employeeFName %>
+          </option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="services[][price]" readonly />
+      </div>
+      <div class="form-group">
+        <label for="qty">Qty:</label>
+        <input type="number" id="qty" name="services[][qty]" required />
+      </div>
+      <div class="form-group">
+        <label for="disc">Discount:</label>
+        <input type="number" id="disc" name="services[][disc]" required />
+      </div>
+      <div class="form-group">
+        <label for="total">Total:</label>
+        <input type="number" id="total" name="services[][total]" readonly />
+      </div>
+      <div class="form-group">
+        <button><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+    </div>
+  `;
+
+  // Append the new item to the container
+  container.appendChild(newItem);
+
+  // Get all the form inputs for the current item
+  const serviceSelect = newItem.querySelector("#service");
+  const staffSelect = newItem.querySelector("#staff");
+  const priceInput = newItem.querySelector("#price");
+  const qtyInput = newItem.querySelector("#qty");
+  const discInput = newItem.querySelector("#disc");
+  const totalInput = newItem.querySelector("#total");
+
+
+  // Add event listener for the service selection
+  serviceSelect.addEventListener("change", function () {
+    const selectedOption = this.options[this.selectedIndex];
+    const price = selectedOption.getAttribute("data-price");
+    priceInput.value = price;
+    calculateTotal();
+  });
+
+  // Add event listeners for qty and disc inputs
+  qtyInput.addEventListener("input", calculateTotal);
+  discInput.addEventListener("input", calculateTotal);
+
+  function calculateTotal() {
+    const price = parseFloat(priceInput.value) || 0;
+    const qty = parseFloat(qtyInput.value) || 0;
+    const disc = parseFloat(discInput.value) || 0;
+    const total = price * qty * (1 - disc / 100);
+    totalInput.value = total.toFixed(2);
+
+    // Calculate the subtotal
+    const subTotal = Array.from(container.children).reduce((acc, item) => {
+      const itemTotal = parseFloat(item.querySelector("#total").value) || 0;
+      return acc + itemTotal;
+    }, 0);
+    document.getElementById("subTotal").value = subTotal.toFixed(2);
+
+    // Calculate the grand total
+    const grandTotal = subTotal;
+    grandTotalInput.value = grandTotal.toFixed(2);
+  }
+
+  // Create an object to represent the item data
+  const itemData = {
+    service: serviceSelect.value,
+    staff: staffSelect.value,
+    price: priceInput.value,
+    qty: qtyInput.value,
+    disc: discInput.value,
+    total: totalInput.value,
+    grandTotal: grandTotalInput.value
+  };
+
+  // Add the item data to the formData array
+  formData.push(itemData);
+  
+}
+
+
+</script>
+
+  // Append the new item to the container
+      container.appendChild(newItem);
+ // Get all the form inputs for the current item
+ const serviceIdSelect = newItem.querySelector("#serviceId");
+    const staffIdSelect = newItem.querySelector("#staffId");
+    const qtyInput = newItem.querySelector("#qty");
+    const discInput = newItem.querySelector("#disc");
+    const totalInput = newItem.querySelector("#total");
+
+    // Add event listeners for qty and disc inputs
+    qtyInput.addEventListener("input", calculateTotal);
+    discInput.addEventListener("input", calculateTotal);
+
+    function calculateTotal() {
+      const price = parseFloat(serviceIdSelect.value) || 0;
+      const qty = parseFloat(qtyInput.value) || 0;
+      const disc = parseFloat(discInput.value) || 0;
+      const total = price * qty * (1 - disc / 100);
+      totalInput.value = total.toFixed(2);
+
+      // Calculate the subtotal
+      const subTotal = Array.from(container.children).reduce((acc, item) => {
+        const itemTotal = parseFloat(item.querySelector("#total").value) || 0;
+        return acc + itemTotal;
+      }, 0);
+      subTotalInput.value = subTotal.toFixed(2);
+
+      // Calculate the grand total
+      const grandTotal = subTotal;
+      grandTotalInput.value = grandTotal.toFixed(2);
+    }
+  }
+
+  // Add event listener to the form submit event
+  const form = document.querySelector("form");
+  form.addEventListener("submit", submitForm);
+
+  function submitForm(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const formData = new FormData(form);
+    const services = [];
+
+    for (const item of formData.getAll("services[][serviceId]")) {
+      const serviceId = item;
+      const staffId = formData.get(`services[][staffId]`);
+      const qty = formData.get(`services[][qty]`);
+      const disc = formData.get(`services[][disc]`);
+      const total = formData.get(`services[][total]`);
+
+      services.push({ serviceId, staffId, qty, disc, total });
+    }
+
+    const payload = {
+      customerName: customerNameInput.value,
+      services,
+      subTotal: parseFloat(subTotalInput.value),
+      grandTotal: parseFloat(grandTotalInput.value)
+    };
+
+    fetch("/payrolls", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(response => {
+        if (response.ok) {
+          console.log("Form submitted successfully");
+          // Optionally, perform any necessary post-submission actions
+        } else {
+          console.error("Failed to submit form");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      });
+   --------------------------------------
+   <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+  <!-- Navbar Brand-->
+  <a class="navbar-brand ps-3" href="">Chic Station</a>
+  <!-- Sidebar Toggle-->
+  <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+  <!-- Navbar Search-->
+  <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+      <div class="input-group">
+          <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+          <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+      </div>
+  </form>
+  <!-- Navbar-->
+  <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+      <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="#!">Settings</a></li>
+              <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item" href="#!">Logout</a></li>
+          </ul>
+      </li>
+  </ul>
+</nav>
+<div id="layoutSidenav">
+  <div id="layoutSidenav_nav">
+      <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+          <div class="sb-sidenav-menu">
+              <div class="nav">
+                  <div class="sb-sidenav-menu-heading">Core</div>
+                  
+                  <a class="nav-link" href="">
+                      <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                      Dashboard
+                  </a>
+                  <div class="sb-sidenav-menu-heading">Interface</div>
+                  <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                      <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                      Records
+                      <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                      
+                  </a>
+                  <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                      <nav class="sb-sidenav-menu-nested nav">
+                        <a class="nav-link" href="/records"> Employee Records </a>
+                        <a class="nav-link " href="/records/new-record-form">Add Employee</a>
+                        <a class="nav-link " href="/payrolls/">Services</a>
+
+                      </nav>
+                  </div>
+                  <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
+                      <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                      Services
+                      <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                  </a>
+                  <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                      <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+
+                          <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
+                              Staff Sales
+                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                          </a>
+                          <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                              <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="/payrolls/new-servicePage-form">Create Service </a>                            
+                                <a class="nav-link" href="/payrolls/sales-summary">Service Sales </a>                            
+                              </nav>
+                          </div>
+                          <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
+                              Payroll History
+                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                          </a>
+                          <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                              <nav class="sb-sidenav-menu-nested nav">
+                                  <a class="nav-link" href="">Payroll Summary</a>
+                                  
+                              </nav>
+                          </div>
+                         
+                      </nav>
+                  </div>
+                  <div class="sb-sidenav-menu-heading">Settings</div>
+                  <a class="nav-link" href="">
+                      <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                      Branches
+                  </a>
+                  <a class="nav-link" href="">
+                      <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                      Tables
+                  </a>
+              </div>
+          </div>
+          <div class="sb-sidenav-footer">
+              <div class="small">Logged in as:</div>
+              Admin
+          </div>
+      </nav>
+  </div>

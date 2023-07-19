@@ -1,0 +1,83 @@
+<% layout('/layouts/boilerplate') %>
+
+
+
+  <form action="/records/<%= employee._id %>?_method=PUT" method="POST" novalidate class="validated-form">
+    <h5>Employee Name</h5>
+    <div class="mb-3">
+      <label for="employeeFName" class="form-label">First Name :</label>
+      <input type="text" class="employeeFName" id="employeeFName" name="employee[employeeName.employeeFName]"
+        value="<%= employee.employeeName.employeeFName %>" required />
+    </div>
+    <div class="mb-3">
+      <label for="employeeLName" class="form-label">Last Name :</label>
+      <input type="text" class="employeeLName" id="employeeLName" name="employee[employeeName.employeeLName]"
+        value="<%= employee.employeeName.employeeLName %>" required />
+    </div>
+    <div class="mb-3">
+      <label for="employeeMidName" class="form-label">Middle Name :</label>
+      <input type="text" class="employeeMidName" id="employeeMidName" name="employee[employeeName.employeeMidName]"
+        value="<%= employee.employeeName.employeeMidName %>" required />
+    </div>
+    <div class="mb-3">
+      <label for="civilStatus" class="form-label">Civil Status :</label>
+      <input type="text" class="civilStatus" id="civilStatus" name="employee[civilStatus]"
+        value="<%= employee.civilStatus %>" required />
+    </div>
+    <div class="mb-3">
+      <label for="birthDate" class="form-label">Birthday :</label>
+      <input type="date" class="civilStatus" id="birthDate" name="employee[birthDate]"
+        value="<%= employee.birthDate ? employee.birthDate.toISOString().slice(0, 10) : '' %>" required />
+    </div>
+    <div class="form-group">
+      <label for="employeeAddress" class="form-label">Address </label>
+      <div class="row">
+        <div class="col">
+          <label for="street" class="form-label">Street:</label>
+          <input type="text" class="form-control" id="street" name="employee[employeeAddress.street]"
+            value="<%= employee.employeeAddress.street %>" required />
+        </div>
+        <div class="col">
+          <label for="city" class="form-label">City:</label>
+          <input type="text" class="form-control" id="city" name="employee[employeeAddress.city]"
+            value="<%= employee.employeeAddress.city %>" required />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="region" class="form-label">Region:</label>
+          <input type="text" class="form-control" id="region" name="employee[employeeAddress.region]"
+            value="<%= employee.employeeAddress.region %>" required />
+        </div>
+        <div class="col">
+          <label for="postalCode" class="form-label">Postal Code:</label>
+          <input type="text" class="form-control" id="postalCode" name="employee[employeeAddress.postalCode]"
+            value="<%= employee.employeeAddress.postalCode %>" required />
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="contactNum" class="form-label">Contact Number :</label>
+      <input type="number" class="form-control" id="contactNum" name="employee[contactNum]"
+        value="<%= employee.contactNum %>" />
+    </div>
+    <div class="mb-3">
+      <label for="position" class="form-label">Position :</label>
+      <input type="text" class="form-control" id="position" name="employee[position]"
+        value="<%= employee.position %>" />
+    </div>
+    <div class="mb-3">
+      <label for="startDate" class="form-label">Start Date :</label>
+      <input type="text" class="form-control" id="startDate" name="employee[startDate]"
+        value="<%= employee.startDate ? employee.startDate.toLocaleDateString('en-US') : '' %>" />
+    </div>
+
+    <button class="btn btn-primary">Update Record</button>
+
+    <a href="/records/<%= employee.id %>">Back</a>
+
+
+
+
+  </form>

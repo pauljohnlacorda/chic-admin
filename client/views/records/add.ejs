@@ -1,0 +1,122 @@
+<% layout('/layouts/boilerplate') %>
+
+  
+  <form action="/records" method="POST" novalidate class="validated-form">
+    <h5>Add Employee Details</h5>
+    <table class="table table-bordered">
+      <tr>
+        <td>
+          <label for="employeeFName" class="form-label">First Name :</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="employeeFName" name="employee[employeeName.employeeFName]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="employeeLName" class="form-label">Last Name :</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="employeeLName" name="employee[employeeName.employeeLName]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="employeeMidName" class="form-label">Middle Name :</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="employeeMidName" name="employee[employeeName.employeeMidName]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="civilStatus" class="form-label">Civil Status :</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="civilStatus" name="employee[civilStatus]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="birthDate" class="form-label">Birthday :</label>
+        </td>
+        <td>
+          <input type="date" class="form-control" id="birthDate" name="employee[birthDate]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <label for="employeeAddress" class="form-label">Address</label>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="street" class="form-label">Street:</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="street" name="employee[employeeAddress.street]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="city" class="form-label">City:</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="city" name="employee[employeeAddress.city]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="region" class="form-label">Region:</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="region" name="employee[employeeAddress.region]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="postalCode" class="form-label">Postal Code:</label>
+        </td>
+        <td>
+          <input type="number" class="form-control" id="postalCode" name="employee[employeeAddress.postalCode]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="contactNum" class="form-label">Contact Number :</label>
+        </td>
+        <td>
+          <input type="number" class="form-control" id="contactNum" name="employee[contactNum]" required />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="position" class="form-label">Position :</label>
+        </td>
+        <td>
+          <input type="text" class="form-control" id="position" name="employee[position]" />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label for="startDate" class="form-label">Start Date :</label>
+        </td>
+        <td>
+          <input type="date" class="form-control" id="startDate" name="employee[startDate]" />
+          <div class="valid-feedback">Looks good!</div>
+        </td>
+      </tr>
+    </table>
+    <button class="btn btn-primary">Add Employee</button>
+  </form>

@@ -1,0 +1,42 @@
+<% layout('/layouts/boilerplate') %>
+
+
+
+    <h1>All Services</h1>
+    <a href="/payrolls/new-service-form"><button>Add Service</button></a>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Service Name</th>
+          <th scope="col">Category</th>
+          <th scope="col">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (let i=0; i < services.length; i++) { %>
+          <tr>
+            <td>
+              <%= i + 1 %>
+            </td>
+            <td>
+              <%= services[i].serviceName %>
+            </td>
+            <td>
+              <%= services[i].category %>
+            </td>
+            <td>
+              <%= services[i].price %>
+            </td>
+            <td><a href="/payrolls/<%= services[i]._id %>/update-service"><i class="bi bi-pencil-square"></i></a></td>
+            <td>
+              <form action="/payrolls/<%= services[i]._id %>?_method=DELETE" method="POST">
+                <button><i class="fa-solid fa-trash-can"></i></button>
+              </form>
+            </td>
+
+          </tr>
+          <% } %>
+      </tbody>
+   </table>
