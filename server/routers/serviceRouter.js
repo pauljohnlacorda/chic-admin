@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const serviceController = require('../controllers/serviceController');
-const { employeeSchemaValidation, serviceSchemaValidation, imageSchemaValidation  } = require('../../schemas');
+const { employeeSchemaValidation, serviceSchemaValidation   } = require('../../schemas');
 const ExpressError = require('../../utils/ExpressError');
+const upload = require('../../middleware/multermiddleware'); 
+
 
 // Middlewares
 const validateEmployee = (req, res, next) => {
@@ -28,15 +30,15 @@ const validateService = (req, res, next) => {
 
 
 
-const validateImage = (req, res, next) => {
-  const { error } = imageSchemaValidation.validate(req.body);
-  if (error) {
-    const msg = error.details.map(el => el.message).join(',');
-    throw new ExpressError(msg, 400);
-  } else {
-    next();
-  }
-};
+// const validateImage = (req, res, next) => {
+//   const { error } = imageSchemaValidation.validate(req.body);
+//   if (error) {
+//     const msg = error.details.map((el) => el.message).join(',');
+//     throw new ExpressError(msg, 400);
+//   } else {
+//     next();
+//   }
+// };
 
 
 
@@ -60,8 +62,10 @@ router.put('/payrolls/:id', validateService, serviceController.updateService);
 router.delete('/payrolls/:id', serviceController.deleteService);
 
 //upload image
-router.get('/payrolls/upload-image-form', serviceController.uploadImage);
-router.post('/uploads',  validateImage, serviceController.uploadFiles);
+router.get('/payrolls/upload-image-form', serviceController.viewImage);
+router.post('/payrolls/uploads', upload.array('image'), serviceController.uploadImage);
+router.delete('/payrolls/uploads/:id', serviceController.deleteImage);
+
 
 
 

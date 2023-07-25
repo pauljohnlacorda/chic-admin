@@ -7,7 +7,21 @@ const ServicePage = require('../../models/servicePage');
 // const Payroll = require('../../models/payroll');
 const catchAsync = require('../../utils/catchAsync');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const path = require('path');
+const fs = require('fs');
+
+
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // append the file extension
+  }
+});
+
+const upload = multer({ storage: storage });
 
 
 
@@ -120,27 +134,62 @@ exports.deleteService = catchAsync(async (req, res) => {
 })
 /** -------------------------------------------                    */
 //View upload form
-exports.uploadImage = async (req, res) => {
+exports.viewImage = async (req, res) => {
   const images = await Image.find();
   res.status(200).render('payrolls/addimage', { images });
 
 };
 //UPLOAD IMAGe
-exports.uploadFiles = upload.array('files', 5), async (req, res, next) => {
+exports.uploadImage = async (req, res, next) => {
   try {
     const images = req.files.map(file => new Image({
-      imageUrl: file.filename,
-      altText: req.body['image[altText]'],
-      notes: req.body['image[notes]'],
+      imageUrl: file.path,
+      altText: req.body.altText,
+      notes: req.body.notes,
     }));
 
-    const savedImages = await Image.insertMany(images);
+    for (const image of images) {
+      await image.save();
+    }
 
-    res.status(200).json(savedImages);
+    // Retrieve all images from the database
+    const allImages = await Image.find();
+
+    res.redirect('/payrolls/addimage'); // Redirect to the appropriate URL
+
   } catch (error) {
     next(error);
   }
 };
+
+
+//DELETE UPLOAD IMAGE
+
+exports.deleteImage = catchAsync(async (req, res) => {
+  const imageId = req.params.id;
+
+  // Find the image in the database
+  const image = await Image.findById(imageId);
+
+  // If the image is found in the database, delete it from both the database and the "uploads" folder
+  if (image) {
+    // Delete the image from the database
+    await Image.findByIdAndDelete(imageId);
+
+    // Delete the image file from the "uploads" folder
+    fs.unlinkSync(image.imageUrl); // This deletes the file synchronously
+
+    // Redirect to the same page with a GET request to display the updated list of images
+    res.redirect('/payrolls/addimage');
+  } else {
+    // If the image is not found, handle the case (e.g., show an error page or redirect)
+    // ...
+  }
+});
+
+
+
+
 
 
 
