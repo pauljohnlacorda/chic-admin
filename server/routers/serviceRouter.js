@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const serviceController = require('../controllers/serviceController');
-const { employeeSchemaValidation, serviceSchemaValidation,  } = require('../../schemas');
+const { employeeSchemaValidation, serviceSchemaValidation, imageSchemaValidation  } = require('../../schemas');
 const ExpressError = require('../../utils/ExpressError');
 
 // Middlewares
@@ -26,15 +26,19 @@ const validateService = (req, res, next) => {
   }
 };
 
-// const validateCreate = (req, res, next) => {
-//   const { error } = CreateSchemaValidation.validate(req.body);
-//   if (error) {
-//     const msg = error.details.map(el => el.message).join(',');
-//     throw new ExpressError(msg, 400);
-//   } else {
-//     next();
-//   }
-// };
+
+
+const validateImage = (req, res, next) => {
+  const { error } = imageSchemaValidation.validate(req.body);
+  if (error) {
+    const msg = error.details.map(el => el.message).join(',');
+    throw new ExpressError(msg, 400);
+  } else {
+    next();
+  }
+};
+
+
 
 
 // Define your routes here
@@ -54,6 +58,12 @@ router.post('/payrolls', validateService, serviceController.saveService);
 router.get('/payrolls/:id/update-service', serviceController.updateServiceForm);
 router.put('/payrolls/:id', validateService, serviceController.updateService);
 router.delete('/payrolls/:id', serviceController.deleteService);
+
+//upload image
+router.get('/payrolls/upload-image-form', serviceController.uploadImage);
+router.post('/uploads',  validateImage, serviceController.uploadFiles);
+
+
 
 
 // Sales Page Routes

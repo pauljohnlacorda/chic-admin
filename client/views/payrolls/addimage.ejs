@@ -1,0 +1,33 @@
+<% layout('/layouts/boilerplate') %>
+
+<h1>Add Image</h1>
+
+<form action="/payrolls" method="POST" enctype="multipart/form-data" novalidate class="validated-form">
+    <input type="file" name="image[imageUrl]" multiple>
+    <input type="text" name="image[altText]" placeholder="Alt Text" required>
+    <input type="text" name="image[notes]" placeholder="Notes" required>
+    <button type="submit">Upload</button>
+  </form>
+  
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Alt Text</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% images.forEach((image) => { %>
+      <tr>
+        <td>
+          <img src="<%= image.imageUrl %>" alt="<%= image.altText %>">
+        </td>
+        <td><%= image.altText %></td>
+        <td><%= image.notes %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+

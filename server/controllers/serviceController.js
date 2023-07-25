@@ -2,9 +2,14 @@
 const mongoose = require('mongoose');
 const Employee = require('../../models/employee');
 const Service = require('../../models/service');
+const Image = require('../../models/image');
 const ServicePage = require('../../models/servicePage');
-const Payroll = require('../../models/payroll');
+// const Payroll = require('../../models/payroll');
 const catchAsync = require('../../utils/catchAsync');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
+
 
 
 
@@ -17,6 +22,8 @@ mongoose
     console.log(err);
   });
 
+
+  
 // display all records
 exports.allRecords = async (req, res) => {
   const records = await Employee.find({});
@@ -24,12 +31,12 @@ exports.allRecords = async (req, res) => {
 }
 
 // view specific record
-exports.viewRecord = catchAsync (async(req, res) => {
-    const recordId = req.params.id;
-    const employee = await Employee.findById(recordId);
-    res.status(200).render('records/show', { employee });
+exports.viewRecord = catchAsync(async (req, res) => {
+  const recordId = req.params.id;
+  const employee = await Employee.findById(recordId);
+  res.status(200).render('records/show', { employee });
 })
- 
+
 // View New record form
 exports.newRecordForm = (req, res) => {
   res.status(200).render('records/add');
@@ -43,7 +50,7 @@ exports.saveRecord = catchAsync(async (req, res) => {
 })
 
 // View update record form
-exports.updateRecordForm = catchAsync( async (req, res) => {
+exports.updateRecordForm = catchAsync(async (req, res) => {
   const recordId = req.params.id;
   const record = await Employee.findById(recordId);
   res.status(200).render('records/edit', { employee: record });
@@ -59,13 +66,13 @@ exports.updateRecord = catchAsync(async (req, res) => {
 
 
 // Delete record form
-exports.deleteRecord =  catchAsync(async (req, res) => {
+exports.deleteRecord = catchAsync(async (req, res) => {
   const recordId = req.params.id;
   await Employee.findByIdAndDelete(recordId);
   // Additional logic for deleting related revisions
   res.redirect('/records');
 })
- 
+
 
 //route to Services
 
@@ -81,50 +88,84 @@ exports.newServiceForm = (req, res) => {
 }
 
 // Save New Servces 
-exports.saveService =  catchAsync(async (req, res) => {
+exports.saveService = catchAsync(async (req, res) => {
   const service = new Service(req.body.service);
   await service.save();
   res.redirect('/payrolls');
 
   // res.redirect(`/payrolls/${service._id}`);
-  
+
 })
 
 //View update Service form
-exports.updateServiceForm = catchAsync (async (req, res) => {
+exports.updateServiceForm = catchAsync(async (req, res) => {
   const serviceId = req.params.id;
-  const  service = await Service.findById(serviceId);
-  res.status(200).render('payrolls/editService',{service});
+  const service = await Service.findById(serviceId);
+  res.status(200).render('payrolls/editService', { service });
 
 })
 
 //update Service Form
-exports.updateService =catchAsync (async(req, res) => {
+exports.updateService = catchAsync(async (req, res) => {
   const serviceId = req.params.id;
-  const  service  = await Service.findByIdAndUpdate(serviceId, {...req.body.service});
+  const service = await Service.findByIdAndUpdate(serviceId, { ...req.body.service });
   res.redirect('/payrolls');
 
 })
 // Delete record form
-exports.deleteService =  catchAsync(async (req, res) => {
+exports.deleteService = catchAsync(async (req, res) => {
   const serviceId = req.params.id;
   await Service.findByIdAndDelete(serviceId);
   res.redirect('/payrolls');
 })
+/** -------------------------------------------                    */
+//View upload form
+exports.uploadImage = async (req, res) => {
+  const images = await Image.find();
+  res.status(200).render('payrolls/addimage', { images });
+
+};
+//UPLOAD IMAGe
+exports.uploadFiles = upload.array('files', 5), async (req, res, next) => {
+  try {
+    const images = req.files.map(file => new Image({
+      imageUrl: file.filename,
+      altText: req.body['image[altText]'],
+      notes: req.body['image[notes]'],
+    }));
+
+    const savedImages = await Image.insertMany(images);
+
+    res.status(200).json(savedImages);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
 
 
 /** -------------------------------------------                    */
 // ROUTE TO SERVICEPAGE
 // View add ServicePage form
-exports.newServicePage = async (req, res) => { 
-    const services = await Service.find();
-    const employees = await Employee.find();
-    res.status(200).render('payrolls/servicePage', { services: services, employees: employees });     
+exports.newServicePage = async (req, res) => {
+  const services = await Service.find();
+  const employees = await Employee.find();
+  res.status(200).render('payrolls/servicePage', { services: services, employees: employees });
 }
 
 // Display all SALES SUMMARY
 exports.allSales = async (req, res) => {
-  const sales = await ServicePage.find({}); 
+  const sales = await ServicePage.find({});
   res.status(200).render('payrolls/staffSale', { sales });
 };
 

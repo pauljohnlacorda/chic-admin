@@ -12,6 +12,7 @@
           <th scope="col">Service Name</th>
           <th scope="col">Category</th>
           <th scope="col">Price</th>
+          <th scope="col">Image</th>
         </tr>
       </thead>
       <tbody>
@@ -28,6 +29,9 @@
             </td>
             <td>
               <%= services[i].price %>
+            </td>
+            <td>
+              <%= services[i].image %>
             </td>
             <td><a href="/payrolls/<%= services[i]._id %>/update-service"><i class="bi bi-pencil-square"></i></a></td>
             <td>

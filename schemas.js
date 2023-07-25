@@ -28,6 +28,12 @@ module.exports.serviceSchemaValidation = Joi.object({
   }).required()
 });
 
+module.exports.imageSchemaValidation = Joi.object({
+  imageUrl: Joi.string(),
+  altText: Joi.string(),
+  notes: Joi.string(),
+});
+
 
 // module.exports.CreateSchemaValidation = Joi.object({
   
