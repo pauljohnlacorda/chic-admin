@@ -44,6 +44,15 @@ const validateService = (req, res, next) => {
 
 
 // Define your routes here
+
+//login render
+router.get('/admin', serviceController.renderLoginPage);
+router.get('/dashboard', serviceController.isAuthenticated, serviceController.renderDashboardPage);
+router.get('/admin/register-form', serviceController.renderRegisterPage);
+
+
+
+
 // Employee Routes
 router.get('/records', serviceController.allRecords);
 router.get('/records/new-record-form', serviceController.newRecordForm);
@@ -62,9 +71,10 @@ router.put('/payrolls/:id', validateService, serviceController.updateService);
 router.delete('/payrolls/:id', serviceController.deleteService);
 
 //upload image
-router.get('/payrolls/upload-image-form', serviceController.viewImage);
-router.post('/payrolls/uploads', upload.array('image'), serviceController.uploadImage);
-router.delete('/payrolls/uploads/:id', serviceController.deleteImage);
+
+router.get('/images', serviceController.viewImage);
+router.post('/images', upload.array('image'), serviceController.uploadImage);
+router.delete('/images/:id', serviceController.deleteImage);
 
 
 

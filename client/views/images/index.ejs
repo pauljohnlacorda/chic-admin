@@ -1,0 +1,36 @@
+<% layout('/layouts/boilerplate') %>
+
+  <h1>Add Image</h1>
+
+  <form action="/images" method="post" enctype="multipart/form-data">
+    <input type="file" name="image" multiple />
+    <input type="text" name="altText" placeholder="Alt Text" required>
+    <input type="text" name="notes" placeholder="Notes" required>
+    <button type="submit">Upload</button>
+  </form>
+
+
+
+  <div class="lightbox-gallery">
+    <div class="container">
+      <div class="intro">
+        <h2 class="text-center">Chic Station Gallery</h2>
+        
+      </div>
+      <div class="row photos">
+        <% images.forEach((image) => { %>
+          <div class="col-sm-6 col-md-4 col-lg-3 item">
+            <div class="image-wrapper">
+              <a href="<%= image.imageUrl.replace(/\\/g, '/') %>" data-lightbox="photos">
+                <img class="img-fluid" src="<%= image.imageUrl.replace(/\\/g, '/') %>" alt="<%= image.altText %>">
+              </a>
+              <form class="delete-form" action="/images/<%= image._id %>?_method=DELETE" method="POST">
+                <button type="submit" class="delete-button"><i class="fa-solid fa-trash-can"></i></button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+  

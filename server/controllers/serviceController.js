@@ -4,11 +4,16 @@ const Employee = require('../../models/employee');
 const Service = require('../../models/service');
 const Image = require('../../models/image');
 const ServicePage = require('../../models/servicePage');
+const User = require('../../models/user');
+const UserRegistration = require('../../models/userRegistration');
 // const Payroll = require('../../models/payroll');
 const catchAsync = require('../../utils/catchAsync');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
+
 
 
 
@@ -17,14 +22,11 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: function(req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // append the file extension
+    cb(null, Date.now() + path.extname(file.originalname)); 
   }
 });
 
 const upload = multer({ storage: storage });
-
-
-
 
 
 mongoose
@@ -37,8 +39,44 @@ mongoose
   });
 
 
-  
-// display all records
+
+//login---------------------------------------------------------
+// Import any necessary modules
+
+// Define the controller function for rendering the login page
+exports.renderLoginPage = (req, res) => {
+  res.render('admin/login');
+};
+
+exports.renderRegisterPage = (req, res) => {
+  res.render('admin/register');
+};
+// Define the controller function for rendering the dashboard page
+exports.renderDashboardPage = (req, res) => {
+  res.render('/dashboard');
+};
+
+// Define the middleware function to check if the user is authenticated
+exports.isAuthenticated = (req, res, next) => {
+  // Check if the user is authenticated
+  // You can implement your authentication logic here
+
+  // If the user is authenticated, proceed to the next middleware or route handler
+  // If the user is not authenticated, redirect them to the login page
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
+
+
+
+
+
+
+
+// display all records--------------------------------------------------
 exports.allRecords = async (req, res) => {
   const records = await Employee.find({});
   res.status(200).render('records/index', { records });
@@ -107,7 +145,6 @@ exports.saveService = catchAsync(async (req, res) => {
   await service.save();
   res.redirect('/payrolls');
 
-  // res.redirect(`/payrolls/${service._id}`);
 
 })
 
@@ -133,10 +170,10 @@ exports.deleteService = catchAsync(async (req, res) => {
   res.redirect('/payrolls');
 })
 /** -------------------------------------------                    */
-//View upload form
+//View upload images
 exports.viewImage = async (req, res) => {
   const images = await Image.find();
-  res.status(200).render('payrolls/addimage', { images });
+  res.status(200).render('images/index', { images });
 
 };
 //UPLOAD IMAGe
@@ -155,35 +192,27 @@ exports.uploadImage = async (req, res, next) => {
     // Retrieve all images from the database
     const allImages = await Image.find();
 
-    res.redirect('/payrolls/addimage'); // Redirect to the appropriate URL
+    res.redirect('/images'); // Redirect to the appropriate URL
 
   } catch (error) {
     next(error);
   }
 };
 
-
 //DELETE UPLOAD IMAGE
 
 exports.deleteImage = catchAsync(async (req, res) => {
   const imageId = req.params.id;
-
-  // Find the image in the database
   const image = await Image.findById(imageId);
-
   // If the image is found in the database, delete it from both the database and the "uploads" folder
   if (image) {
-    // Delete the image from the database
     await Image.findByIdAndDelete(imageId);
 
-    // Delete the image file from the "uploads" folder
-    fs.unlinkSync(image.imageUrl); // This deletes the file synchronously
+    fs.unlinkSync(image.imageUrl); 
 
-    // Redirect to the same page with a GET request to display the updated list of images
-    res.redirect('/payrolls/addimage');
+    res.redirect('/images');
   } else {
-    // If the image is not found, handle the case (e.g., show an error page or redirect)
-    // ...
+    
   }
 });
 
