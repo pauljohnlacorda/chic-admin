@@ -46,9 +46,14 @@ const validateService = (req, res, next) => {
 // Define your routes here
 
 //login render
-router.get('/admin', serviceController.renderLoginPage);
-router.get('/dashboard', serviceController.isAuthenticated, serviceController.renderDashboardPage);
+router.get('/', serviceController.renderloginPage);
+router.get('/admin', serviceController.logout);
+router.post('/admin', serviceController.loginUser);
+router.get('/dashboard', serviceController.renderDashboardPage);
 router.get('/admin/register-form', serviceController.renderRegisterPage);
+router.post('/admin', serviceController.registerUser);
+
+
 
 
 

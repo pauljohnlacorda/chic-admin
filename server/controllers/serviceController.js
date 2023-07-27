@@ -5,7 +5,6 @@ const Service = require('../../models/service');
 const Image = require('../../models/image');
 const ServicePage = require('../../models/servicePage');
 const User = require('../../models/user');
-const UserRegistration = require('../../models/userRegistration');
 // const Payroll = require('../../models/payroll');
 const catchAsync = require('../../utils/catchAsync');
 const multer = require('multer');
@@ -41,34 +40,79 @@ mongoose
 
 
 //login---------------------------------------------------------
-// Import any necessary modules
-
-// Define the controller function for rendering the login page
-exports.renderLoginPage = (req, res) => {
+//render login page
+exports.renderloginPage = (req, res) => {
   res.render('admin/login');
 };
 
+//handle login submition
+exports.loginUser = catchAsync(async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    if (user.password === req.body.password) {
+      res.status(201).redirect('dashboard');
+    } else {
+      res.send("Incorrect password");
+    }
+  } catch (e) {
+
+    res.send("wrong details")
+  }
+});
+
+
+
+
+//view register page
 exports.renderRegisterPage = (req, res) => {
   res.render('admin/register');
 };
+
+
+//save registration
+exports.registerUser = catchAsync(async (req, res) => {
+  try {
+    const { username, email, password, firstName, lastName } = req.body;
+
+    // Check if the username or email already exists in the database
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+
+    // Generate a secret key for the user's 2FA
+    const secret = speakeasy.generateSecret();
+
+    // Create a new user object with the secret key and additional fields
+    const newUser = new User({ username, email, password, secret, firstName, lastName });
+
+    await newUser.save();
+
+    // Return a success response
+    res.redirect('admin/login');
+  } catch (error) {
+    // Handle any errors that occur during the registration process
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+
 // Define the controller function for rendering the dashboard page
 exports.renderDashboardPage = (req, res) => {
-  res.render('/dashboard');
+  // Retrieve the user object from the request
+  const user = req.user;
+
+  res.render('dashboard/home', { user });
 };
 
-// Define the middleware function to check if the user is authenticated
-exports.isAuthenticated = (req, res, next) => {
-  // Check if the user is authenticated
-  // You can implement your authentication logic here
 
-  // If the user is authenticated, proceed to the next middleware or route handler
-  // If the user is not authenticated, redirect them to the login page
-  if (req.isAuthenticated()) {
-    next();
-  } else {
-    res.redirect('/login');
-  }
+//logout
+exports.logout = (req, res) => {
+  res.render('admin/login');
 };
+
 
 
 
