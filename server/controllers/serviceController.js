@@ -7,37 +7,36 @@ const ServicePage = require('../../models/servicePage');
 const User = require('../../models/user');
 // const Payroll = require('../../models/payroll');
 const catchAsync = require('../../utils/catchAsync');
-const multer = require('multer');
-const path = require('path');
+const cloudinary = require('../../utils/cloudinary');
 const fs = require('fs');
 const speakeasy = require('speakeasy');
-const qrcode = require('qrcode');
 
 
 
 
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function(req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); 
-  }
-});
 
-const upload = multer({ storage: storage });
+
+// mongoose
+//   .connect("mongodb://127.0.0.1:27017/chicStation")
+//   .then(() => {
+//     console.log("Connection Open");
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
 
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/chicStation")
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => {
-    console.log("Connection Open");
+    console.log('Connection Open');
   })
   .catch((err) => {
     console.log(err);
   });
-
-
 
 //login---------------------------------------------------------
 //render login page
@@ -197,7 +196,6 @@ exports.updateServiceForm = catchAsync(async (req, res) => {
   const serviceId = req.params.id;
   const service = await Service.findById(serviceId);
   res.status(200).render('payrolls/editService', { service });
-
 })
 
 //update Service Form
@@ -216,49 +214,50 @@ exports.deleteService = catchAsync(async (req, res) => {
 /** -------------------------------------------                    */
 //View upload images
 exports.viewImage = async (req, res) => {
-  const images = await Image.find();
+  const images = await Image.find({});
   res.status(200).render('images/index', { images });
+}
 
-};
 //UPLOAD IMAGe
 exports.uploadImage = async (req, res, next) => {
   try {
-    const images = req.files.map(file => new Image({
-      imageUrl: file.path,
-      altText: req.body.altText,
-      notes: req.body.notes,
-    }));
+    // Upload image to cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
 
-    for (const image of images) {
-      await image.save();
-    }
-
-    // Retrieve all images from the database
-    const allImages = await Image.find();
-
-    res.redirect('/images'); // Redirect to the appropriate URL
-
-  } catch (error) {
-    next(error);
+    // Create new user
+    let image = new Image({
+      title: req.body.title,
+      avatar: result.secure_url,
+      cloudinary_id: result.public_id,
+    });
+    // Save user
+    await image.save();
+    res.redirect('/images');
+  } catch (err) {
+    console.log(err);
   }
 };
 
+
+
 //DELETE UPLOAD IMAGE
+exports.deleteImage = async (req, res, next) => {
+  try {
+    // Fetch image from Cloudinary
+    const image = await Image.findById(req.params.id);
 
-exports.deleteImage = catchAsync(async (req, res) => {
-  const imageId = req.params.id;
-  const image = await Image.findById(imageId);
-  // If the image is found in the database, delete it from both the database and the "uploads" folder
-  if (image) {
-    await Image.findByIdAndDelete(imageId);
+    // Delete image from Cloudinary
+    await cloudinary.uploader.destroy(image.cloudinary_id);
 
-    fs.unlinkSync(image.imageUrl); 
+    // Delete image from the database
+    await Image.findByIdAndRemove(req.params.id);
 
     res.redirect('/images');
-  } else {
-    
+  } catch (err) {
+    console.log(err);
   }
-});
+};
+
 
 
 

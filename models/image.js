@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 
 
 const imageSchema = new mongoose.Schema({
-    imageUrl: {
+    cloudinary_id: {
       type: String,
       required: true
     },
-    altText: {
+    title: {
       type: String,
       required: true
     },
-    notes: {
+    avatar: {
         type: String,
         required: true
     }

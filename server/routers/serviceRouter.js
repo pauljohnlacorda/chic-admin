@@ -3,7 +3,8 @@ const router = express.Router();
 const serviceController = require('../controllers/serviceController');
 const { employeeSchemaValidation, serviceSchemaValidation   } = require('../../schemas');
 const ExpressError = require('../../utils/ExpressError');
-const upload = require('../../middleware/multermiddleware'); 
+const upload = require('../../utils/multer');
+// const upload = require('../../middleware/multermiddleware'); 
 
 
 // Middlewares
@@ -78,7 +79,7 @@ router.delete('/payrolls/:id', serviceController.deleteService);
 //upload image
 
 router.get('/images', serviceController.viewImage);
-router.post('/images', upload.array('image'), serviceController.uploadImage);
+router.post('/images', upload.single('image'), serviceController.uploadImage);
 router.delete('/images/:id', serviceController.deleteImage);
 
 
@@ -89,5 +90,6 @@ router.delete('/images/:id', serviceController.deleteImage);
 router.get('/payrolls/new-servicePage-form', serviceController.newServicePage);
 router.get('/payrolls/sales-summary', serviceController.allSales);
 router.post('/payrolls/',  serviceController.saveCreateService);
+
 
 module.exports = router;
