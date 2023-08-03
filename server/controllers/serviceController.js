@@ -3,13 +3,12 @@ const mongoose = require('mongoose');
 const Employee = require('../../models/employee');
 const Service = require('../../models/service');
 const Image = require('../../models/image');
-const ServicePage = require('../../models/servicePage');
 const User = require('../../models/user');
-// const Payroll = require('../../models/payroll');
+const ServicePage = require ('../../models/servicePage');
 const catchAsync = require('../../utils/catchAsync');
 const cloudinary = require('../../utils/cloudinary');
-const fs = require('fs');
-const speakeasy = require('speakeasy');
+const bcrypt = require('bcrypt');
+
 
 
 
@@ -39,37 +38,11 @@ mongoose
   });
 
 //login---------------------------------------------------------
-//render login page
-exports.renderloginPage = (req, res) => {
-  res.render('admin/login');
-};
-
-//handle login submition
-exports.loginUser = catchAsync(async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const user = await User.findOne({ username });
-    if (user.password === req.body.password) {
-      res.status(201).redirect('dashboard');
-    } else {
-      res.send("Incorrect password");
-    }
-  } catch (e) {
-
-    res.send("wrong details")
-  }
-});
-
-
-
 
 //view register page
 exports.renderRegisterPage = (req, res) => {
   res.render('admin/register');
 };
-
-
 //save registration
 exports.registerUser = catchAsync(async (req, res) => {
   try {
@@ -81,21 +54,49 @@ exports.registerUser = catchAsync(async (req, res) => {
       return res.status(400).json({ error: 'Username or email already exists' });
     }
 
-    // Generate a secret key for the user's 2FA
-    const secret = speakeasy.generateSecret();
+    // Hash the password using bcrypt
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
 
-    // Create a new user object with the secret key and additional fields
-    const newUser = new User({ username, email, password, secret, firstName, lastName });
+    const newUser = new User({ username, email, password: hashedPassword, firstName, lastName });
 
     await newUser.save();
 
     // Return a success response
-    res.redirect('admin/login');
+    res.redirect('/');
   } catch (error) {
     // Handle any errors that occur during the registration process
     res.status(500).json({ error: 'Registration failed' });
   }
 });
+
+
+
+//render login page
+exports.renderloginPage = (req, res) => {
+  res.render('admin/login');
+};
+
+//handle login submition
+exports.loginUser = catchAsync(async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    // Compare the hashed password using bcrypt.compare()
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (isPasswordCorrect) {
+      res.status(201).redirect('dashboard');
+    } else {
+      res.send("Incorrect password");
+    }
+  } catch (e) {
+    res.send("Wrong details");
+  }
+});
+
+
+
 
 
 // Define the controller function for rendering the dashboard page
@@ -260,74 +261,102 @@ exports.deleteImage = async (req, res, next) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /** -------------------------------------------                    */
 // ROUTE TO SERVICEPAGE
 // View add ServicePage form
 exports.newServicePage = async (req, res) => {
   const services = await Service.find();
   const employees = await Employee.find();
-  res.status(200).render('payrolls/servicePage', { services: services, employees: employees });
+  res.status(200).render('staffSale/servicePage', { services: services, employees: employees });
 }
 
-// Display all SALES SUMMARY
-exports.allSales = async (req, res) => {
-  const sales = await ServicePage.find({});
-  res.status(200).render('payrolls/staffSale', { sales });
+//Display all SALES SUMMARY
+exports.getSalesSummary = async (req, res) => {
+  try {
+    const salesSummary = await ServicePage.find().populate('services.service services.staff').exec();
+
+    // Calculate additional data
+    const staffSalesData = {};
+
+    salesSummary.forEach((servicePage) => {
+      servicePage.services.forEach((service) => {
+        const staffId = service.staff._id.toString();
+
+        if (!staffSalesData[staffId]) {
+          staffSalesData[staffId] = {
+            staff: service.staff.employeeName.employeeFName,
+            totalCustomers: new Set(),
+            totalSales: 0,
+            services: [], // Add an empty array to store services per staff
+          };
+        }
+
+        // Calculate total customers per staff
+        staffSalesData[staffId].totalCustomers.add(servicePage.customerName);
+
+        // Calculate total sales per staff
+        staffSalesData[staffId].totalSales += service.total;
+
+        // Store service per staff in each customer
+        staffSalesData[staffId].services.push({
+          customerName: servicePage.customerName,
+          serviceName: service.service.serviceName,
+          price: service.price,
+          qty: service.qty,
+          disc: service.disc,
+        });
+      });
+    });
+
+    const staffSalesArray = Object.values(staffSalesData);
+
+    res.render('staffSale/transactions', { salesSummary, staffSalesArray });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching the sales summary data' });
+  }
 };
 
 
+
+/*-----=========================================---*/
 // Save new service
-exports.saveCreateService = catchAsync(async (req, res) => {
-  const { serviceId, staffId, qty, disc, total } = req.body;
+exports.CreateService = async (req, res) => {
+  const { date, customerName, subTotal, grandTotal, services } = req.body;
+
+  // Create a new service page instance
+  const servicePage = new ServicePage({
+    date,
+    customerName,
+    subTotal,
+    grandTotal,
+    services,
+  });
 
   try {
-    // Retrieve the service and employee data based on the provided IDs
-    const service = await Service.findById(serviceId);
-    const employee = await Employee.findById(staffId);
+    // Explicitly validate the data
+    await servicePage.validate();
 
-    if (!service || !employee) {
-      return res.status(404).json({ error: 'Service or employee not found' });
-    }
+    // Save the service page to the database
+    await servicePage.save();
 
-    // Create a new document with the retrieved data
-    const newData = {
-      service: service.serviceName,
-      employee: employee.employeeName,
-      price: service.price,
-      qty,
-      disc,
-      total
-    };
-
-    // Create a new instance of the ServicePage model
-    const newServicePage = new ServicePage(newData);
-
-    // Save the new service page data to the database
-    await newServicePage.save();
-
-    // Redirect or send a response to indicate success
-    res.redirect(`/payrolls/${newServicePage._id}`);
+    // Send a response back to the client
+    res.json({ message: 'Data saved successfully' });
   } catch (error) {
-    // Handle any errors that occur during the process
-    console.error('Error:', error);
-    res.status(500).json({ error: 'An error occurred' });
+    if (error.name === 'ValidationError') {
+      // Handle validation errors
+      console.error(error);
+      res.status(400).json({ error: 'Invalid data format', details: error.errors });
+    } else {
+      // Handle other errors
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred while saving the data' });
+    }
   }
-});
+};
+
+
+
 
 
 

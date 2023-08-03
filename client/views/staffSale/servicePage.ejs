@@ -1,13 +1,17 @@
 <% layout('/layouts/boilerplate') %>
 
   <h1>Create New Service</h1>
-  <form id="serviceForm" action="/payrolls" method="POST" novalidate class="validated-form">
+  <form id="serviceForm" action="/staffSale" method="POST" novalidate class="validated-form">
     <div>
       <div>
         <button id="addButton" class="btn btn-primary">Add Item</button>
         <div class="form-group">
           <label for="customerName">Client Name:</label>
           <input type="text" id="customerName" name="customerName" required />
+        </div>
+        <div class="form-group">
+          <label for="date">Date:</label>
+          <input type="date" id="date" name="date" required />
         </div>
         <div id="container"></div>
       </div>
@@ -24,6 +28,9 @@
     </div>
     <div class="mt-4 text-right">
       <button id="submitButton" class="btn btn-primary">Submit</button>
+    </div>
+    <div class="mt-4 text-right">
+      <button id="printButton" class="btn btn-secondary">Print Receipt</button>
     </div>
   </form>
 
@@ -147,38 +154,132 @@
     function handleFormSubmission(event) {
       event.preventDefault(); // Prevent the default form submission
 
-      // Get the form data
+      // Get all the form data
       const formData = new FormData(serviceForm);
 
-      // Convert form data to JSON
-      const jsonData = {};
-      for (const [name, value] of formData) {
-        if (!jsonData[name]) {
-          jsonData[name] = value;
-        } else {
-          if (!Array.isArray(jsonData[name])) {
-            jsonData[name] = [jsonData[name]];
-          }
-          jsonData[name].push(value);
-        }
-      }
+      // Convert form data to an array of objects
+      const services = [];
+      formData.getAll('services[][service]').forEach((service, index) => {
+        services.push({
+          service: service,
+          staff: formData.getAll('services[][staff]')[index],
+          price: formData.getAll('services[][price]')[index],
+          qty: formData.getAll('services[][qty]')[index],
+          disc: formData.getAll('services[][disc]')[index],
+          total: formData.getAll('services[][total]')[index],
+        });
+      });
+
+      // Create the JSON data to be saved in the database
+      const jsonData = {
+        date: formData.get('date'),
+        customerName: formData.get('customerName'),
+        subTotal: formData.get('subTotal'),
+        grandTotal: formData.get('grandTotal'),
+        services: services,
+      };
 
       // Send the data to the server
-      fetch("/saveCreateService", {
+      fetch("/staffSale", {
         method: "POST",
         body: JSON.stringify(jsonData),
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       })
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           // Handle the server response if needed
           console.log(data);
         })
-        .catch(error => {
+        .catch((error) => {
           // Handle any errors that occurred during the request
           console.error(error);
         });
+
+
+      //fucntion print
+      const printButton = document.getElementById("printButton");
+
+      // Add event listener for the print button
+      printButton.addEventListener("click", function () {
+        printReceipt();
+      });
+
+      // Function to generate the receipt content and print it
+      function printReceipt() {
+        // Get the current date value
+        const dateInput = document.getElementById("date");
+        const dateValue = dateInput.value;
+
+        // Generate the receipt content
+        const receiptContent = generateReceiptContent(dateValue);
+
+        // Open a new window for printing
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write(receiptContent);
+        printWindow.document.close();
+
+        // Print the receipt
+        printWindow.print();
+      }
+
+
+      function generateReceiptContent(dateValue) {
+        // Get the customer name from the input field
+        const customerName = customerNameInput.value;
+
+        // Get all the service items from the container
+        const serviceItems = Array.from(container.children);
+
+        // Generate the receipt content for each service item
+        const itemsContent = serviceItems.map((item, index) => {
+          const serviceSelect = item.querySelector("#service");
+          const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+          const serviceName = selectedOption.textContent;
+          const staffSelect = item.querySelector("#staff");
+          const staffName = staffSelect.options[staffSelect.selectedIndex].textContent;
+          const priceInput = item.querySelector("#price");
+          const price = parseFloat(priceInput.value) || 0;
+          const qtyInput = item.querySelector("#qty");
+          const qty = parseFloat(qtyInput.value) || 0;
+          const discInput = item.querySelector("#disc");
+          const disc = parseFloat(discInput.value) || 0;
+          const totalInput = item.querySelector("#total");
+          const total = parseFloat(totalInput.value) || 0;
+
+          // Generate the content for each service item
+          return `
+      <div>
+        <p><b>Service ${index + 1}:</b></p>
+        <p>Service Name: ${serviceName}</p>
+        <p>Staff: ${staffName}</p>
+        <p>Price: ${price.toFixed(2)}</p>
+        <p>Quantity: ${qty}</p>
+        <p>Discount: ${disc}%</p>
+        <p>Total: ${total.toFixed(2)}</p>
+      </div>
+    `;
+        });
+
+        // Calculate the subtotal and grand total
+        const subTotalValue = parseFloat(subTotalInput.value) || 0;
+        const grandTotalValue = parseFloat(grandTotalInput.value) || 0;
+
+        // Generate the receipt content
+        const receiptContent = `
+    <h2>Receipt</h2>
+    <p>Date: ${dateValue}</p>
+    <p>Customer Name: ${customerName}</p>
+    ${itemsContent.join("")}
+    <p>Sub Total: ${subTotalValue.toFixed(2)}</p>
+    <p>Grand Total: ${grandTotalValue.toFixed(2)}</p>
+  `;
+
+        return receiptContent;
+      }
+
+
     }
+
   </script>

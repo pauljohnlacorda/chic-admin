@@ -4,7 +4,6 @@ const serviceController = require('../controllers/serviceController');
 const { employeeSchemaValidation, serviceSchemaValidation   } = require('../../schemas');
 const ExpressError = require('../../utils/ExpressError');
 const upload = require('../../utils/multer');
-// const upload = require('../../middleware/multermiddleware'); 
 
 
 // Middlewares
@@ -48,13 +47,19 @@ const validateService = (req, res, next) => {
 
 //login render
 router.get('/', serviceController.renderloginPage);
-router.get('/admin', serviceController.logout);
+router.get('/', serviceController.logout);
 router.post('/admin', serviceController.loginUser);
-router.get('/dashboard', serviceController.renderDashboardPage);
-router.get('/admin/register-form', serviceController.renderRegisterPage);
 router.post('/admin', serviceController.registerUser);
+router.get('/admin/register-form', serviceController.renderRegisterPage);
 
 
+
+
+
+
+
+
+router.get('/dashboard', serviceController.renderDashboardPage);
 
 
 
@@ -87,9 +92,9 @@ router.delete('/images/:id', serviceController.deleteImage);
 
 
 // Sales Page Routes
-router.get('/payrolls/new-servicePage-form', serviceController.newServicePage);
-router.get('/payrolls/sales-summary', serviceController.allSales);
-router.post('/payrolls/',  serviceController.saveCreateService);
+router.get('/staffSale', serviceController.newServicePage);
+router.post('/staffSale',  serviceController.CreateService);
+router.get('/staffSale/transactions',  serviceController.getSalesSummary);
 
 
 module.exports = router;

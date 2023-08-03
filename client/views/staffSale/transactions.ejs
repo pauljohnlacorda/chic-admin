@@ -1,0 +1,48 @@
+<% layout('/layouts/boilerplate') %>
+<table>
+  <thead>
+    <tr>
+      <th>Staff</th>
+      <th>Service</th>
+      <th>Customer</th>
+      <th>Price</th>
+      <th>Quantity</th>
+      <th>Discount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% staffSalesArray.forEach((staffSalesData) => { %>
+      <% staffSalesData.services.forEach((service) => { %>
+        <tr>
+          <!-- Display staff name and service details -->
+          <td><%= staffSalesData.staff %></td>
+          <td><%= service.serviceName %></td>
+          <td><%= service.customerName %></td>
+          <td><%= service.price %></td>
+          <td><%= service.qty %></td>
+          <td><%= service.disc %></td>
+        </tr>
+      <% }); %>
+    <% }); %>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Staff</th>
+      <th>Total Customers</th>
+      <th>Total Sales</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% staffSalesArray.forEach((staffSalesData) => { %>
+      <tr>
+        <!-- Display staff name, total customers, and total sales -->
+        <td><%= staffSalesData.staff %></td>
+        <td><%= staffSalesData.totalCustomers.size %></td>
+        <td><%= staffSalesData.totalSales %></td>
+      </tr>
+    <% }); %>
+  </tbody>
+</table>

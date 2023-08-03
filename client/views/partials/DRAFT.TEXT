@@ -437,3 +437,49 @@ function addItem() {
           </div>
       </nav>
   </div>
+
+
+
+exports.newServicePage = async (req, res) => {
+  const services = await Service.find();
+  const employees = await Employee.find();
+  res.status(200).render('staffSale/servicePage', { services: services, employees: employees });
+}
+
+// Display all SALES SUMMARY
+exports.getSalesSummary = async (req, res) => {
+  try {
+    const salesSummary = await ServicePage.find({});
+
+    res.render('staffSale/transactions', { salesSummary });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching the sales summary data' });
+  }
+};
+
+/*-----=========================================---*/
+// Save new service
+exports.CreateService = async (req, res) => {
+  const { customerName, subTotal, grandTotal, services } = req.body;
+
+  // Create a new service page instance
+  const servicePage = new ServicePage({
+    customerName,
+    subTotal,
+    grandTotal,
+    services,
+  });
+
+  // Save the service page to the database
+  servicePage.save()
+    .then(() => {
+      // Send a response back to the client
+      res.json({ message: 'Data saved successfully' });
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the save operation
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred while saving the data' });
+    });
+};
