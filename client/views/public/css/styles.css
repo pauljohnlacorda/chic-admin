@@ -10,7 +10,7 @@
  * Copyright 2011-2021 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
-:root {
+ :root {
   --blue: #4e73df;
   --indigo: #6610f2;
   --purple: #6f42c1;
@@ -48,6 +48,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  color:#490f0f !important;
 }
 
 html {
@@ -78,10 +79,45 @@ body {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #858796;
+  /* color: #858796; */
   text-align: left;
-  background-color: #fff;
+  background-color: #fff !important;
 }
+
+.dashboard{
+  margin-left:auto;
+  margin-right: auto;
+}
+.dash{
+ background-color:rgb(244, 145, 145);
+ position: relative;
+ top: -1.5em;
+ 
+}
+.wrap{
+  background-color: #f3e9cd  !important;
+  /* box-shadow: 10px 10px 10px rgba(0, 0, 0,.8) !important; */
+  /* height: 90vh !important; */
+}
+/* .navbar{
+  background-color:  #858796!important;
+} */
+h5{
+  color:#bd6513;
+}
+footer{
+  position: relative;
+  top: -1.5em;
+}
+.intro .border{
+  /* border: 1px solid black; */
+  background-color: #ffffff;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, .2);
+}
+
+
+
+
 
 [tabindex="-1"]:focus:not(:focus-visible) {
   outline: 0 !important;
@@ -91,6 +127,7 @@ hr {
   box-sizing: content-box;
   height: 0;
   overflow: visible;
+  color:#000 !important
 }
 
 h1,
@@ -106,6 +143,7 @@ h6 {
 p {
   margin-top: 0;
   margin-bottom: 1rem;
+  color: #000;
 }
 
 abbr[title],
@@ -251,7 +289,9 @@ label {
 }
 
 button {
-  border-radius: 0;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, .2);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, .2);
 }
 
 button:focus:not(:focus-visible) {
@@ -601,6 +641,9 @@ pre code {
   .container-sm {
     max-width: 540px;
   }
+  /* .dashboard{
+    margin-right: 20%;
+  } */
 }
 
 @media (min-width: 768px) {
@@ -608,6 +651,9 @@ pre code {
   .container-sm,
   .container-md {
     max-width: 720px;
+  }
+  .dashboard{
+    margin-left: 5%;
   }
 }
 
@@ -617,6 +663,10 @@ pre code {
   .container-md,
   .container-lg {
     max-width: 960px;
+
+  }
+  .dashboard{
+    margin-left: 15%;
   }
 }
 
@@ -627,6 +677,9 @@ pre code {
   .container-lg,
   .container-xl {
     max-width: 1140px;
+  }
+  .dashboard{
+    margin-left: 23%;
   }
 }
 
@@ -6568,6 +6621,9 @@ a.close.disabled {
   transition: transform 0.6s ease-in-out;
 }
 
+
+
+
 @media (prefers-reduced-motion: reduce) {
   .carousel-item {
     transition: none;
@@ -11825,10 +11881,11 @@ input[type="number"] {
 
 /*------------------------------------- image container gallery------------------------------------------------ */
 .lightbox-gallery {
-  background-image: linear-gradient(#4a148c, #e53935);
-  background-repeat: no-repeat;
+  /* background-image: linear-gradient(#4a148c, #e53935);
+  background-repeat: no-repeat; */
   color: #000;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
+  background-color: rgb(244, 145, 145);
 }
 .lightbox-gallery p {
   color: #fff;

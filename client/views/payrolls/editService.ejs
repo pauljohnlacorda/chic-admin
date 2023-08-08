@@ -1,9 +1,9 @@
 <% layout('/layouts/boilerplate') %>
 
 
-<div class="container-fluid">
+<div class="container-fluid ms-2">
 
-    <form action="/payrolls" method="POST" novalidate class="validated-form">
+    <form action="/payrolls" method="POST" novalidate class="validated-form ms-2">
       <div>
         <label for="category">Category:</label>
         <input type="text" id="category" name="service[category]" value="<%= service.category %>" required>
@@ -16,6 +16,6 @@
         <label for="price">Price:</label>
         <input type="number" id="price" name="service[price]" value="<%= service.price %>" required>
       </div>
-      <button type="submit">Edit Service Item</button>
+      <!-- <button type="submit">Edit Service Item</button> -->
     </form>
 </div>

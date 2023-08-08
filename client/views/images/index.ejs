@@ -1,10 +1,10 @@
 <% layout('/layouts/boilerplate') %>
 
-  <h1>Add Image</h1>
+  <h4 class="mx-2">Click "Choose File" to add picture.</h4>
 
-  <form action="/images" method="post" enctype="multipart/form-data">
-    <input type="file" name="image" accept="image/*" />
-    <input type="text" name="title" placeholder="title" required>
+  <form action="/images" method="post" enctype="multipart/form-data" class="my-2 mx-2">
+    <input type="file" name="image" accept="image/*" class="choosefilebutton" />
+    <input type="text" name="title" placeholder="title" required/>
     <button type="submit">Upload</button>
   </form>
 
@@ -15,10 +15,12 @@
         <h2 class="text-center">Chic Station Gallery</h2>    
         <% if (images.length > 0) { %>
           <% images.map((image) => { %>
-            <img src="<%= image.avatar %>" alt="<%= image.title %>">
-            <form action="/images/<%= image._id %>?_method=DELETE" method="POST">
-              <button type="submit">Delete</button>
+            <div class="border mt-3 text-center">
+            <img src="<%= image.avatar %>" alt="<%= image.title %>" class="img-fluid mt-2">
+            <form action="/images/<%= image._id %>?_method=DELETE" method="POST" >
+              <button type="submit" class="m-2">Delete</button>
             </form>
+          </div>
           <% }) %>
         <% } else { %>
           <p>No images found.</p>
